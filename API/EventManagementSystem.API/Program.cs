@@ -4,6 +4,7 @@
 
 namespace EventManagementSystem.API
 {
+    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -16,8 +17,11 @@ namespace EventManagementSystem.API
     using EventManagementSystem.Utility;
     using FluentValidation;
     using MediatR;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.IdentityModel.Tokens;
     using Serilog;
 
     public class Program
@@ -40,6 +44,53 @@ namespace EventManagementSystem.API
                 });
             });
 
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = "http://localhost:8080/realms/event-management-system";
+                options.RequireHttpsMetadata = false;
+                options.ClientId = "event-system-backend";
+                options.ClientSecret = "cLucwnqYOdhavE7cfxoNAxjNvnW8iY8J";
+                options.ResponseType = "code";
+
+                options.SaveTokens = true;
+
+                options.CallbackPath = "/signin-oidc";
+
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+
+                // Map roles from Keycloak token claims
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                };
+
+                options.GetClaimsFromUserInfoEndpoint = true;
+            });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "http://localhost:8080/realms/event-management-system";
+                options.RequireHttpsMetadata = false;
+                options.Audience = "account"; // Must match Keycloak client ID
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                };
+            });
+            builder.Services.AddTransient<IClaimsTransformation, KeycloakRoleClaimsTransformation>();
+
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddOpenApi();
@@ -58,8 +109,8 @@ namespace EventManagementSystem.API
             builder.Services.AddScoped<EventEndpoints>();
             builder.Services.AddScoped<EventRegistrationEndpoints>();
             builder.Services.AddScoped<UserEndpoints>();
-            builder.Services.AddScoped<AuthEndpoints>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddSingleton<IAzureBlobStorage, AzureBlobStorage>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options => options
             .UseLazyLoadingProxies()
@@ -70,15 +121,17 @@ namespace EventManagementSystem.API
             SerilogConfiguration.ConfigureSerilog(builder.Host, builder.Configuration);
 
             // Add services to the container.
+            builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
+            builder.Services.AddAntiforgery(options =>
+            {
+                options.HeaderName = "X-XSRF-TOKEN"; // or any custom header name you want for AJAX calls
+            });
 
             var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            app.RegisterAllEndpointGroups();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -95,7 +148,14 @@ namespace EventManagementSystem.API
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
+            app.UseAntiforgery();
+
+            // Configure the HTTP request pipeline.
+            app.RegisterAllEndpointGroups();
+            app.MapAntiforgeryEndpoints();
 
             app.Run();
         }

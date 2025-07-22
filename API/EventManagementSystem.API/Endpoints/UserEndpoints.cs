@@ -11,6 +11,7 @@ namespace EventManagementSystem.API.Endpoints
     using EventManagementSystem.Application.UseCases.Users.GetUsers;
     using FluentValidation.Results;
     using MediatR;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     public class UserEndpoints : IEndpointGroup
@@ -26,7 +27,10 @@ namespace EventManagementSystem.API.Endpoints
         {
             var group = app.MapGroup("api/users");
 
-            group.MapPost("/", async (IMediator mediator, [FromBody] CreateUserCommand command) =>
+            group.MapPost(
+                "/",
+                [Authorize(Roles = "Admin")]
+                async (IMediator mediator, [FromBody] CreateUserCommand command) =>
             {
                 var result = await mediator.Send(command);
 
@@ -42,7 +46,10 @@ namespace EventManagementSystem.API.Endpoints
                 return Results.Ok(successResponse);
             });
 
-            group.MapGet("/", async (IMediator mediator) =>
+            group.MapGet(
+                "/",
+                [Authorize(Roles = "Admin")]
+                async (IMediator mediator) =>
             {
                 var query = new GetUsersQuery();
 

@@ -11,6 +11,7 @@ namespace EventManagementSystem.API.Endpoints
     using EventManagementSystem.Application.UseCases.EventRegistrations.CreateEventRegistration;
     using EventManagementSystem.Application.UseCases.EventRegistrations.GetUserRegistrationsByEvent;
     using MediatR;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     public class EventRegistrationEndpoints : IEndpointGroup
@@ -26,7 +27,10 @@ namespace EventManagementSystem.API.Endpoints
         {
             var group = app.MapGroup("api/registrations");
 
-            group.MapPost("/", async (IMediator mediator, [FromBody] CreateEventRegistrationCommand command) =>
+            group.MapPost(
+                "/",
+                [Authorize(Roles = "Public User")]
+                async (IMediator mediator, [FromBody] CreateEventRegistrationCommand command) =>
             {
                 var result = await mediator.Send(command);
 
@@ -42,24 +46,10 @@ namespace EventManagementSystem.API.Endpoints
                 return Results.Ok(successResponse);
             });
 
-            group.MapGet("/{eventId}", async (IMediator mediator, [FromRoute] string eventId) =>
-            {
-                var query = new GetRegistrationsByEventQuery(eventId);
-
-                var result = await mediator.Send(query);
-                if (!result.IsSuccess)
-                {
-                    var response = Response<string>.FailureResponse(new List<string> { result.Error! }, $"Couldn't get the registrations list: {result.Error}");
-                    this.logger.LogWarning("Failed: Couldn't get the registrations list. Error: {Error}", result.Error);
-                    return Results.BadRequest(response);
-                }
-
-                var successResponse = Response<List<GetRegistrationDto>>.SuccessResponse(result.Value!, "Registrations retrieved successfully");
-                this.logger.LogInformation("Books retrieved successfully.");
-                return Results.Ok(successResponse);
-            });
-
-            group.MapDelete("/{registrationId}", async (IMediator mediator, [FromRoute] string registrationId) =>
+            group.MapDelete(
+                "/{registrationId}",
+                [Authorize(Roles = "Public User")]
+                async (IMediator mediator, [FromRoute] string registrationId) =>
             {
                 var command = new CancelRegistrationCommand(registrationId);
 
