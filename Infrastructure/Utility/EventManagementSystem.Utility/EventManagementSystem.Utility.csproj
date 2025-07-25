@@ -26,4 +26,8 @@
 		<AdditionalFiles Include="stylecop.json" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\..\Core\Application\EventManagementSystem.Application\EventManagementSystem.Application.csproj" />
+	</ItemGroup>
+
 </Project>

@@ -55,7 +55,7 @@ namespace EventManagementSystem.API
                 options.Authority = "http://localhost:8080/realms/event-management-system";
                 options.RequireHttpsMetadata = false;
                 options.ClientId = "event-system-backend";
-                options.ClientSecret = "cLucwnqYOdhavE7cfxoNAxjNvnW8iY8J";
+                options.ClientSecret = "LujqvYYZ68deq7ftFqsRCdELC3cE7Iil";
                 options.ResponseType = "code";
 
                 options.SaveTokens = true;
@@ -132,6 +132,8 @@ namespace EventManagementSystem.API
             });
 
             var app = builder.Build();
+
+            app.UseCors("AllowFrontend");
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

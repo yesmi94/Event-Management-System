@@ -2,7 +2,7 @@
 // Copyright (c) Ascentic. All rights reserved.
 // </copyright>
 
-namespace EventManagementSystem.Persistance
+namespace EventManagementSystem.Utility
 {
     using Azure.Storage.Blobs;
     using EventManagementSystem.Application.Interfaces;
