@@ -12,8 +12,7 @@ namespace EventManagementSystem.Application.Mapping
     {
         public UserMappingProfile()
         {
-            this.CreateMap<NewUserDto, GetUserDto>();
-            this.CreateMap<GetUserDto, NewUserDto>();
+            this.CreateMap<NewUserDto, GetUserDto>().ReverseMap();
             this.CreateMap<NewUserDto, User>();
             this.CreateMap<User, GetUserDto>();
         }

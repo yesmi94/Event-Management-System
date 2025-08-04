@@ -18,10 +18,14 @@ namespace EventManagementSystem.Application.Interfaces
 
         Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate);
 
+        Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null);
+
         Task AddAsync(T entity);
 
         Task DeleteAsync(T entity);
 
         Task UpdateAsync(T entity);
+
+        IQueryable<T> GetQueryable();
     }
 }

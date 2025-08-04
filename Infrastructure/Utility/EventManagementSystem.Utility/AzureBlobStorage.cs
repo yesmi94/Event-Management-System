@@ -18,7 +18,7 @@ namespace EventManagementSystem.Utility
             var connectionString = config["AzureStorage:ConnectionString"];
             var containerName = config["AzureStorage:ContainerName"];
             this.containerClient = new BlobContainerClient(connectionString, containerName);
-            this.containerClient.CreateIfNotExists(); // Optional: ensure container exists
+            this.containerClient.CreateIfNotExists();
         }
 
         public async Task<string> UploadImageAsync(IFormFile file)
@@ -29,7 +29,7 @@ namespace EventManagementSystem.Utility
             using var stream = file.OpenReadStream();
             await blobClient.UploadAsync(stream, overwrite: true);
 
-            return blobClient.Uri.ToString(); // Returns the image URL
+            return blobClient.Uri.ToString();
         }
     }
 }

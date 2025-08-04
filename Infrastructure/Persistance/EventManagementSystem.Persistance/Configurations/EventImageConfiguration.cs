@@ -8,7 +8,7 @@ namespace EventManagementSystem.Persistance.Configurations
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-    public class EventImageConfiguration
+    public class EventImageConfiguration : IEntityTypeConfiguration<EventImage>
     {
         public void Configure(EntityTypeBuilder<EventImage> builder)
         {
@@ -19,9 +19,9 @@ namespace EventManagementSystem.Persistance.Configurations
             builder.Property(e => e.Url)
             .HasMaxLength(500);
 
-            builder.HasOne(e => e.Event)
+            builder.HasOne<Event>()
             .WithMany()
-            .HasForeignKey(e => e.EventId)
+            .HasForeignKey(ei => ei.EventId)
             .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -16,12 +16,14 @@ namespace EventManagementSystem.Application.UseCases.Events.UploadEventImage
         private readonly IRepository<EventImage> imagesRepository;
         private readonly IUnitOfWork unitOfWork;
         private readonly IAzureBlobStorage azureBlobStorage;
+        private readonly IRepository<Event> eventsRepository;
 
-        public UploadEventImageCommandHandler(IRepository<EventImage> imagesRepository, IUnitOfWork unitOfWork, IAzureBlobStorage cloudStorage)
+        public UploadEventImageCommandHandler(IRepository<EventImage> imagesRepository, IUnitOfWork unitOfWork, IAzureBlobStorage cloudStorage, IRepository<Event> eventsRepository)
         {
             this.imagesRepository = imagesRepository;
             this.unitOfWork = unitOfWork;
             this.azureBlobStorage = cloudStorage;
+            this.eventsRepository = eventsRepository;
         }
 
         public async Task<Result<string>> Handle(UploadEventImageCommand request, CancellationToken cancellationToken)
@@ -35,8 +37,15 @@ namespace EventManagementSystem.Application.UseCases.Events.UploadEventImage
             };
 
             await this.imagesRepository.AddAsync(image);
-            await this.unitOfWork.CompleteAsync();
 
+            var eventEntity = await this.eventsRepository.GetByIdAsync(request.eventId);
+            if (eventEntity == null)
+            {
+                return Result<string>.Failure("Failed: Cannot find the event for this ID");
+            }
+
+            eventEntity.EventImageUrl = imageUrl;
+            await this.unitOfWork.CompleteAsync();
             return Result<string>.Success(imageUrl);
         }
     }

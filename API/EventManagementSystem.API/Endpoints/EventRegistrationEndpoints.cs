@@ -9,7 +9,6 @@ namespace EventManagementSystem.API.Endpoints
     using EventManagementSystem.Application.Patterns;
     using EventManagementSystem.Application.UseCases.EventRegistrations.CancelRegistration;
     using EventManagementSystem.Application.UseCases.EventRegistrations.CreateEventRegistration;
-    using EventManagementSystem.Application.UseCases.EventRegistrations.GetUserRegistrationsByEvent;
     using MediatR;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -37,7 +36,7 @@ namespace EventManagementSystem.API.Endpoints
                 if (!result.IsSuccess)
                 {
                     var response = Response<string>.FailureResponse([result.Error!], "Couldn't create the new registration");
-                    this.logger.LogWarning("Failed: Failed to add the new registraiton. Error: {Error}", result.Error);
+                    this.logger.LogWarning("Failed: Failed to add the new registration. Error: {Error}", result.Error);
                     return Results.BadRequest(response);
                 }
 

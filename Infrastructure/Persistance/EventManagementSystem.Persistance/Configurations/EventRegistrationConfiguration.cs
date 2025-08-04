@@ -29,15 +29,19 @@ namespace EventManagementSystem.Persistance.Configurations
             builder.Property(eventRegistration => eventRegistration.Email)
                 .IsRequired();
 
-            builder
-                .HasOne(eventRegistration => eventRegistration.User)
+            builder.HasOne<Event>()
                 .WithMany()
-                .HasForeignKey(eventRegistration => eventRegistration.PublicUserId);
+                .HasForeignKey(reg => reg.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(reg => reg.Event)
+                .WithMany()
+                .HasForeignKey(reg => reg.EventId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder
-                .HasOne(eventRegistration => eventRegistration.RegisteredEvent)
-                .WithMany()
-                .HasForeignKey(eventRegistration => eventRegistration.EventId);
+                .HasIndex(r => new { r.PublicUserId, r.EventId })
+                .IsUnique();
         }
     }
 }

@@ -2,17 +2,19 @@
 // Copyright (c) Ascentic. All rights reserved.
 // </copyright>
 
-using EventManagementSystem.Domain.Enums;
-
 namespace EventManagementSystem.Domain.Entities
 {
+    using EventManagementSystem.Domain.Enums;
+
     public class Event
     {
         public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
-        public string? CreatedByUserId { get; set; }
+        public string CreatedByUserId { get; set; } = default!;
 
         public string? Title { get; set; }
+
+        public string? EventImageUrl { get; set; }
 
         public string? Description { get; set; }
 
@@ -31,7 +33,5 @@ namespace EventManagementSystem.Domain.Entities
         public int Capacity { get; set; }
 
         public DateTime CutoffDate { get; set; }
-
-        public virtual User? User { get; set; }
     }
 }

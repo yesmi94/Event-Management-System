@@ -8,6 +8,6 @@ namespace EventManagementSystem.Application.UseCases.Events.GetEvents
     using EventManagementSystem.Application.Patterns;
     using MediatR;
 
-    public record GetEventsQuery()
-        : IRequest<Result<List<GetEventDto>>>;
+    public record GetEventsQuery(int page, int pageSize)
+        : IRequest<Result<PaginatedResult<GetEventDto>>>;
 }

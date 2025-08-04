@@ -13,6 +13,8 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public string? CreatedByUserId { get; set; }
 
+        public string? EventImageUrl { get; set; }
+
         public string? Title { get; set; }
 
         public string? Description { get; set; }
@@ -25,13 +27,15 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public string? Location { get; set; }
 
-        public EventType? Type { get; set; }
+        public string? Type { get; set; }
 
         public string? Organization { get; set; }
 
         public int Capacity { get; set; }
 
         public DateTime CutoffDate { get; set; }
+
+        public DateTime RegisteredAt { get; set; }
 
         public virtual User? User { get; set; }
     }

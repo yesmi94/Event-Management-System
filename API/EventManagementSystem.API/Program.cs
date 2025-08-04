@@ -4,7 +4,6 @@
 
 namespace EventManagementSystem.API
 {
-    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -12,6 +11,7 @@ namespace EventManagementSystem.API
     using EventManagementSystem.Application.Interfaces;
     using EventManagementSystem.Application.Mapping;
     using EventManagementSystem.Application.UseCases.Events.CreateEvent;
+    using EventManagementSystem.Domain.Enums;
     using EventManagementSystem.Persistance;
     using EventManagementSystem.Persistance.Repositories;
     using EventManagementSystem.Utility;
@@ -23,15 +23,14 @@ namespace EventManagementSystem.API
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
     using Serilog;
+    using System.Security.Claims;
+    using System.Text.Json.Serialization;
 
     public class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Logging
-            builder.Host.UseSerilog();
 
             builder.Services.AddCors(options =>
             {
@@ -43,6 +42,9 @@ namespace EventManagementSystem.API
                         .AllowAnyMethod();
                 });
             });
+
+            // Logging
+            builder.Host.UseSerilog();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -66,11 +68,11 @@ namespace EventManagementSystem.API
                 options.Scope.Add("profile");
                 options.Scope.Add("email");
 
-                // Map roles from Keycloak token claims
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "preferred_username",
                     RoleClaimType = ClaimTypes.Role,
+                    ValidAudiences = new[] { "event-system-backend", "account" },
                 };
 
                 options.GetClaimsFromUserInfoEndpoint = true;
@@ -81,7 +83,7 @@ namespace EventManagementSystem.API
             {
                 options.Authority = "http://localhost:8080/realms/event-management-system";
                 options.RequireHttpsMetadata = false;
-                options.Audience = "account"; // Must match Keycloak client ID
+                options.Audience = "event-system-backend";
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -105,9 +107,12 @@ namespace EventManagementSystem.API
 
             builder.Services.AddValidatorsFromAssemblyContaining<CreateEventCommandValidator>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
+            builder.Services.AddScoped<IEventsRepository, EventsRepository>();
             builder.Services.AddAutoMapper(typeof(EventMappingProfile).Assembly);
             builder.Services.AddScoped<EventEndpoints>();
             builder.Services.AddScoped<EventRegistrationEndpoints>();
+            builder.Services.AddScoped<DashboardEndpoints>();
             builder.Services.AddScoped<UserEndpoints>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddSingleton<IAzureBlobStorage, AzureBlobStorage>();
@@ -128,14 +133,13 @@ namespace EventManagementSystem.API
             builder.Services.AddOpenApi();
             builder.Services.AddAntiforgery(options =>
             {
-                options.HeaderName = "X-XSRF-TOKEN"; // or any custom header name you want for AJAX calls
+                options.HeaderName = "X-XSRF-TOKEN";
             });
 
             var app = builder.Build();
 
-            app.UseCors("AllowFrontend");
+            app.UseCors();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -148,7 +152,7 @@ namespace EventManagementSystem.API
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
-            app.UseHttpsRedirection();
+            /*app.UseHttpsRedirection();*/
 
             app.UseRouting();
             app.UseAuthentication();
@@ -157,7 +161,6 @@ namespace EventManagementSystem.API
 
             // Configure the HTTP request pipeline.
             app.RegisterAllEndpointGroups();
-            app.MapAntiforgeryEndpoints();
 
             app.Run();
         }

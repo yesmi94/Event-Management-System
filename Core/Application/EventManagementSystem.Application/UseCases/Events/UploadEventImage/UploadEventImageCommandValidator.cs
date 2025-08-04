@@ -19,8 +19,7 @@ namespace EventManagementSystem.Application.UseCases.Events.UploadEventImage
 
             this.RuleFor(x => x.imageFile)
                 .NotNull().WithMessage("Image file is required.")
-                .Must(this.BeAValidContentType).WithMessage("Only JPG or PNG images are allowed.")
-                .Must(this.BeWithinSizeLimit).WithMessage("Image must be smaller than 5MB.");
+                .Must(this.BeAValidContentType).WithMessage("Only JPG or PNG images are allowed.");
         }
 
         private bool BeAValidContentType(IFormFile file)

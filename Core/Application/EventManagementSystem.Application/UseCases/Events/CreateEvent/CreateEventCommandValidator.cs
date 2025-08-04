@@ -10,7 +10,20 @@ namespace EventManagementSystem.Application.UseCases.Events.CreateEvent
     {
         public CreateEventCommandValidator()
         {
+            this.RuleFor(x => x.newEventDto).NotNull().WithMessage("Event data must be provided.");
+
+            this.When(x => x.newEventDto != null, () =>
+            {
+                this.RuleFor(x => x.newEventDto.Title)
+                    .NotEmpty()
+                    .WithMessage("Title is required.");
+
+                this.RuleFor(x => x.newEventDto.Description)
+                    .MaximumLength(500);
+            });
+
             this.RuleFor(evt => evt.newEventDto.Title)
+                .NotNull()
                 .NotEmpty().WithMessage("Title of the Event is required");
 
             this.RuleFor(evt => evt.newEventDto.Type)

@@ -4,7 +4,17 @@
 
 namespace EventManagementSystem.Application.UseCases.Events.GetEvents
 {
-    internal class GetEventsQueryValidator
+    using FluentValidation;
+
+    public class GetEventsQueryValidator : AbstractValidator<GetEventsQuery>
     {
+        public GetEventsQueryValidator()
+        {
+            this.RuleFor(x => x.page)
+                .GreaterThan(0).WithMessage("Page must be greater than 0.");
+
+            this.RuleFor(x => x.pageSize)
+                .InclusiveBetween(1, 100).WithMessage("PageSize must be between 1 and 100.");
+        }
     }
 }
