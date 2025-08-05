@@ -82,6 +82,7 @@ namespace EventManagementSystem.Persistance.Repositories
                     Id = e.Id,
                     Title = e.Title,
                     Description = e.Description,
+                    CutoffDate = e.CutoffDate,
                     EventDate = e.EventDate,
                     EventTime = e.EventTime,
                     Type = e.Type.ToString(),

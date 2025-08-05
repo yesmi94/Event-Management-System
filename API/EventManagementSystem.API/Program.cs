@@ -152,7 +152,7 @@ namespace EventManagementSystem.API
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
-            /*app.UseHttpsRedirection();*/
+            app.UseHttpsRedirection();
 
             app.UseRouting();
             app.UseAuthentication();

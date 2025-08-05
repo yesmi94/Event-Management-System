@@ -5,7 +5,6 @@
 namespace EventManagementSystem.Application.DTOs.EventDtos
 {
     using EventManagementSystem.Domain.Entities;
-    using EventManagementSystem.Domain.Enums;
 
     public class GetEventDto
     {
