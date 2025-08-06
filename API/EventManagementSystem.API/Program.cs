@@ -4,6 +4,7 @@
 
 namespace EventManagementSystem.API
 {
+    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -11,7 +12,6 @@ namespace EventManagementSystem.API
     using EventManagementSystem.Application.Interfaces;
     using EventManagementSystem.Application.Mapping;
     using EventManagementSystem.Application.UseCases.Events.CreateEvent;
-    using EventManagementSystem.Domain.Enums;
     using EventManagementSystem.Persistance;
     using EventManagementSystem.Persistance.Repositories;
     using EventManagementSystem.Utility;
@@ -23,8 +23,6 @@ namespace EventManagementSystem.API
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
     using Serilog;
-    using System.Security.Claims;
-    using System.Text.Json.Serialization;
 
     public class Program
     {
@@ -117,11 +115,9 @@ namespace EventManagementSystem.API
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddSingleton<IAzureBlobStorage, AzureBlobStorage>();
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => options
-            .UseLazyLoadingProxies()
-            .UseSqlServer(
-                "Server=.\\SQLEXPRESS;Database=EventManagementDatabase;Trusted_Connection=True;TrustServerCertificate=True;",
-                sqlOptions => sqlOptions.MigrationsAssembly("EventManagementSystem.Persistance")));
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
             SerilogConfiguration.ConfigureSerilog(builder.Host, builder.Configuration);
 

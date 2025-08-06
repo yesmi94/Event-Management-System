@@ -50,6 +50,7 @@ namespace EventManagementSystem.Application.UseCases.Events.CreateEvent
                 Capacity = requestDto.Capacity,
                 CutoffDate = requestDto.CutoffDate,
                 Type = requestDto.Type,
+                RemainingSpots = requestDto.Capacity,
             };
 
             var getEventDto = this.mapper.Map<GetEventDto>(requestDto);

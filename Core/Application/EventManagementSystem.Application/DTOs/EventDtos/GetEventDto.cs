@@ -37,5 +37,7 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
         public DateTime RegisteredAt { get; set; }
 
         public virtual User? User { get; set; }
+
+        public int RemainingSpots { get; set; }
     }
 }

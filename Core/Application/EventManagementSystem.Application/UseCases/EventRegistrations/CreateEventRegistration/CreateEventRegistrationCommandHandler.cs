@@ -62,6 +62,7 @@ namespace EventManagementSystem.Application.UseCases.EventRegistrations.CreateEv
             GetRegistrationDto registrationDto = this.mapper.Map<GetRegistrationDto>(registration);
 
             await this.eventRegistrationRepository.AddAsync(registration);
+            registrationEvent.RemainingSpots -= 1;
             await this.unitOfWork.CompleteAsync();
 
             return Result<GetRegistrationDto>.Success(registrationDto);

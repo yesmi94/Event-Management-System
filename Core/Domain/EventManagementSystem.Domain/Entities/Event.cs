@@ -33,5 +33,7 @@ namespace EventManagementSystem.Domain.Entities
         public int Capacity { get; set; }
 
         public DateTime CutoffDate { get; set; }
+
+        public int RemainingSpots { get; set; }
     }
 }

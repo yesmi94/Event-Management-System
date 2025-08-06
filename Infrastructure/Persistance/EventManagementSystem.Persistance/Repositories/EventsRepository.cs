@@ -6,14 +6,12 @@ namespace EventManagementSystem.Persistance.Repositories
 {
     using System.Linq;
     using System.Linq.Expressions;
-    using AutoMapper;
     using EventManagementSystem.Application.DTOs.EventDtos;
     using EventManagementSystem.Application.Interfaces;
     using EventManagementSystem.Application.Patterns;
     using EventManagementSystem.Domain.Entities;
     using EventManagementSystem.Domain.Enums;
     using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
 
     public class EventsRepository : IEventsRepository
     {
@@ -38,7 +36,7 @@ namespace EventManagementSystem.Persistance.Repositories
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(e => e.Title.Contains(search) || e.Description.Contains(search));
+                query = query.Where(e => e.Title!.Contains(search) || e.Description!.Contains(search));
             }
 
             if (Enum.TryParse<EventType>(category, true, out var parsedCategory))
@@ -48,8 +46,7 @@ namespace EventManagementSystem.Persistance.Repositories
 
             if (!string.IsNullOrWhiteSpace(location))
             {
-                query = query.Where(e => e.Location.ToLower() == location.ToLower()
-);
+                query = query.Where(e => e.Location!.ToLower() == location.ToLower());
             }
 
             if (dateFrom.HasValue)
@@ -88,6 +85,7 @@ namespace EventManagementSystem.Persistance.Repositories
                     Type = e.Type.ToString(),
                     Location = e.Location,
                     EventImageUrl = e.EventImageUrl,
+                    RemainingSpots = e.RemainingSpots,
                 })
                 .ToListAsync();
 

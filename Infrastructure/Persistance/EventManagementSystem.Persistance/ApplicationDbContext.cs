@@ -7,6 +7,7 @@ namespace EventManagementSystem.Persistance
     using EventManagementSystem.Domain.Entities;
     using EventManagementSystem.Persistance.Configurations;
     using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
 
     public class ApplicationDbContext : DbContext
     {
@@ -25,10 +26,19 @@ namespace EventManagementSystem.Persistance
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder
-                .UseLazyLoadingProxies()
-                .UseSqlServer("Server=.\\SQLEXPRESS;Database=EventManagementDatabase;Trusted_Connection=True;TrustServerCertificate=true;");
+            if (!optionsBuilder.IsConfigured)
+            {
+                var config = new ConfigurationBuilder()
+                    .SetBasePath(Directory.GetCurrentDirectory())
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+                var connectionString = config.GetConnectionString("DefaultConnection");
+
+                optionsBuilder
+                    .UseLazyLoadingProxies()
+                    .UseSqlServer(connectionString);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
