@@ -55,11 +55,6 @@ namespace EventManagementSystem.Persistance.Configurations
             builder.Property(evt => evt.CutoffDate)
                .IsRequired()
                .HasColumnType("date");
-
-            builder
-                .HasOne(evt => evt.User)
-                .WithMany()
-                .HasForeignKey(evt => evt.CreatedByUserId);
         }
     }
 }

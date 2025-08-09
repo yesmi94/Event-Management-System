@@ -22,7 +22,7 @@ namespace EventManagementSystem.Application.UseCases.EventRegistrations.CreateEv
 
             this.RuleFor(registration => registration.newRegistrationDto.PhoneNumber)
                 .NotEmpty().WithMessage("Phone Number of the registered user is required")
-                .Matches(@"^\+947\d{8}$").WithMessage("Phone number must be valid");
+                .Matches(@"^07\d{8}$").WithMessage("Phone number must be valid");
         }
     }
 }

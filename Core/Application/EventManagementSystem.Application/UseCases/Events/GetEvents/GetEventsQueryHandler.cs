@@ -11,7 +11,7 @@ namespace EventManagementSystem.Application.UseCases.Events.GetEvents
     using EventManagementSystem.Domain.Entities;
     using MediatR;
 
-    public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, Result<List<GetEventDto>>>
+    public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, Result<PaginatedResult<GetEventDto>>>
     {
         private readonly IRepository<Event> eventsRepository;
         private readonly IMapper mapper;
@@ -22,12 +22,23 @@ namespace EventManagementSystem.Application.UseCases.Events.GetEvents
             this.mapper = mapper;
         }
 
-        public async Task<Result<List<GetEventDto>>> Handle(GetEventsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PaginatedResult<GetEventDto>>> Handle(GetEventsQuery request, CancellationToken cancellationToken)
         {
-            var allEvents = await this.eventsRepository.GetAllAsync();
+            var allEventsQueryable = await this.eventsRepository.GetAllAsync();
 
-            var allEventsList = this.mapper.Map<List<GetEventDto>>(allEvents);
-            return Result<List<GetEventDto>>.Success(allEventsList);
+            var totalCount = allEventsQueryable.Count();
+
+            var pagedEvents = allEventsQueryable
+                .OrderByDescending(e => e.EventDate)
+                .Skip((request.page - 1) * request.pageSize)
+                .Take(request.pageSize)
+                .ToList();
+
+            var eventDtos = this.mapper.Map<List<GetEventDto>>(pagedEvents);
+
+            var result = new PaginatedResult<GetEventDto>(eventDtos, totalCount, request.page, request.pageSize);
+
+            return Result<PaginatedResult<GetEventDto>>.Success(result);
         }
     }
 }

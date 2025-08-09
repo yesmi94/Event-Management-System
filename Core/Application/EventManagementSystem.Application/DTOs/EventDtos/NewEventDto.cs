@@ -12,6 +12,8 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public string? CreatedByUserId { get; set; }
 
+        public string? EventImageUrl { get; set; }
+
         public string? Description { get; set; }
 
         public DateTime EventDate { get; set; }
@@ -27,6 +29,8 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
         public string? Organization { get; set; }
 
         public int Capacity { get; set; }
+
+        public DateTime RegisteredAt { get; set; }
 
         public DateTime CutoffDate { get; set; }
     }

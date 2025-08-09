@@ -40,7 +40,8 @@ namespace EventManagementSystem.Application.UseCases.Events.CreateEvent
             Event newEvent = new Event
             {
                 Title = requestDto.Title,
-                CreatedByUserId = requestDto.CreatedByUserId,
+                CreatedByUserId = requestDto.CreatedByUserId!,
+                EventImageUrl = requestDto.EventImageUrl,
                 Description = requestDto.Description,
                 EventDate = requestDto.EventDate,
                 EventTime = requestDto.EventTime,
@@ -49,9 +50,11 @@ namespace EventManagementSystem.Application.UseCases.Events.CreateEvent
                 Capacity = requestDto.Capacity,
                 CutoffDate = requestDto.CutoffDate,
                 Type = requestDto.Type,
+                RemainingSpots = requestDto.Capacity,
             };
 
             var getEventDto = this.mapper.Map<GetEventDto>(requestDto);
+            getEventDto.Id = newEvent.Id;
 
             await this.eventsRepository.AddAsync(newEvent);
             await this.unitOfWork.CompleteAsync();

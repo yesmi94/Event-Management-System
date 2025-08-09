@@ -1,4 +1,4 @@
-﻿// <copyright file="EndpointGroupRegistrationExtension.cs" company="Ascentic">
+﻿// <copyright file="EndpointGroupRegistrationExtensions.cs" company="Ascentic">
 // Copyright (c) Ascentic. All rights reserved.
 // </copyright>
 

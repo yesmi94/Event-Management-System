@@ -10,16 +10,16 @@ namespace EventManagementSystem.Domain.Entities
 
         public string? EventId { get; set; }
 
-        public virtual User? User { get; set; }
-
         public string? PublicUserId { get; set; }
 
         public string? RegisteredUserName { get; set; }
 
         public string? PhoneNumber { get; set; }
 
+        public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+
         public string? Email { get; set; }
 
-        public virtual Event? RegisteredEvent { get; set; }
+        public virtual Event? Event { get; set; }
     }
 }

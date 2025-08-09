@@ -12,8 +12,7 @@ namespace EventManagementSystem.Application.Mapping
     {
         public RegistrationMappingProfile()
         {
-            this.CreateMap<NewRegistrationDto, GetRegistrationDto>();
-            this.CreateMap<GetRegistrationDto, NewRegistrationDto>();
+            this.CreateMap<NewRegistrationDto, GetRegistrationDto>().ReverseMap();
             this.CreateMap<NewRegistrationDto, EventRegistration>();
             this.CreateMap<EventRegistration, GetRegistrationDto>();
         }

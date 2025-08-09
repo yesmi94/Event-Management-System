@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EventManagementSystem.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250719051647_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250804043703_EventRegistrationTime")]
+    partial class EventRegistrationTime
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -38,7 +38,7 @@ namespace EventManagementSystem.Persistance.Migrations
 
                     b.Property<string>("CreatedByUserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedTime")
                         .HasColumnType("datetime2");
@@ -53,6 +53,9 @@ namespace EventManagementSystem.Persistance.Migrations
 
                     b.Property<DateTime>("EventDate")
                         .HasColumnType("date");
+
+                    b.Property<string>("EventImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<TimeSpan>("EventTime")
                         .HasColumnType("time");
@@ -76,8 +79,6 @@ namespace EventManagementSystem.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedByUserId");
-
                     b.ToTable("Events", (string)null);
                 });
 
@@ -90,13 +91,14 @@ namespace EventManagementSystem.Persistance.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Url")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
-                    b.ToTable("EventImages");
+                    b.ToTable("EventImages", (string)null);
                 });
 
             modelBuilder.Entity("EventManagementSystem.Domain.Entities.EventRegistration", b =>
@@ -119,6 +121,9 @@ namespace EventManagementSystem.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("RegisteredUserName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -128,7 +133,9 @@ namespace EventManagementSystem.Persistance.Migrations
 
                     b.HasIndex("EventId");
 
-                    b.HasIndex("PublicUserId");
+                    b.HasIndex("PublicUserId", "EventId")
+                        .IsUnique()
+                        .HasFilter("[EventId] IS NOT NULL");
 
                     b.ToTable("EventRegistrations", (string)null);
                 });
@@ -165,41 +172,22 @@ namespace EventManagementSystem.Persistance.Migrations
                     b.HasDiscriminator<int>("Role").HasValue(1);
                 });
 
-            modelBuilder.Entity("EventManagementSystem.Domain.Entities.Event", b =>
-                {
-                    b.HasOne("EventManagementSystem.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("EventManagementSystem.Domain.Entities.EventImage", b =>
                 {
-                    b.HasOne("EventManagementSystem.Domain.Entities.Event", "Event")
+                    b.HasOne("EventManagementSystem.Domain.Entities.Event", null)
                         .WithMany()
-                        .HasForeignKey("EventId");
-
-                    b.Navigation("Event");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("EventManagementSystem.Domain.Entities.EventRegistration", b =>
                 {
-                    b.HasOne("EventManagementSystem.Domain.Entities.Event", "RegisteredEvent")
+                    b.HasOne("EventManagementSystem.Domain.Entities.Event", "Event")
                         .WithMany()
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("EventManagementSystem.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("PublicUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RegisteredEvent");
-
-                    b.Navigation("User");
+                    b.Navigation("Event");
                 });
 #pragma warning restore 612, 618
         }

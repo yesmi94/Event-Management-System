@@ -12,12 +12,11 @@ namespace EventManagementSystem.Application.Mapping
     {
         public EventMappingProfile()
         {
-            this.CreateMap<GetEventDto, NewEventDto>();
-            this.CreateMap<NewEventDto, GetEventDto>()
+            this.CreateMap<GetEventDto, NewEventDto>().ReverseMap();
+            this.CreateMap<Event, GetEventDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()));
-            this.CreateMap<GetEventDto, Event>();
+            this.CreateMap<GetEventDto, Event>().ReverseMap();
             this.CreateMap<Event, NewEventDto>();
-            this.CreateMap<Event, GetEventDto>();
             this.CreateMap<UpdateEventDto, GetEventDto>();
         }
     }

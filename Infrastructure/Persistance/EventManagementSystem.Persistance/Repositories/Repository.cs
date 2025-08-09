@@ -40,5 +40,17 @@ namespace EventManagementSystem.Persistance.Repositories
             this.entities.Update(entity);
             return Task.CompletedTask;
         }
+
+        public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)
+        {
+            return predicate == null
+                ? await this.entities.CountAsync()
+                : await this.entities.CountAsync(predicate);
+        }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return this.context.Set<T>().AsQueryable();
+        }
     }
 }

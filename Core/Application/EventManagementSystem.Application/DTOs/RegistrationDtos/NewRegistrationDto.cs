@@ -15,5 +15,7 @@ namespace EventManagementSystem.Application.DTOs.RegistrationDtos
         public string? PhoneNumber { get; set; }
 
         public string? Email { get; set; }
+
+        public DateTime RegisteredAt { get; set; }
     }
 }

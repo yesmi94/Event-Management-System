@@ -14,6 +14,8 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public string? Description { get; set; }
 
+        public string? EventImageUrl { get; set; }
+
         public DateTime EventDate { get; set; }
 
         public TimeSpan EventTime { get; set; }

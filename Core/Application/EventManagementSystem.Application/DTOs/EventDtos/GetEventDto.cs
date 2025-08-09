@@ -5,13 +5,14 @@
 namespace EventManagementSystem.Application.DTOs.EventDtos
 {
     using EventManagementSystem.Domain.Entities;
-    using EventManagementSystem.Domain.Enums;
 
     public class GetEventDto
     {
         public string? Id { get; set; }
 
         public string? CreatedByUserId { get; set; }
+
+        public string? EventImageUrl { get; set; }
 
         public string? Title { get; set; }
 
@@ -25,7 +26,7 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public string? Location { get; set; }
 
-        public EventType? Type { get; set; }
+        public string? Type { get; set; }
 
         public string? Organization { get; set; }
 
@@ -33,6 +34,10 @@ namespace EventManagementSystem.Application.DTOs.EventDtos
 
         public DateTime CutoffDate { get; set; }
 
+        public DateTime RegisteredAt { get; set; }
+
         public virtual User? User { get; set; }
+
+        public int RemainingSpots { get; set; }
     }
 }

@@ -4,6 +4,7 @@
 
 namespace EventManagementSystem.API
 {
+    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -16,8 +17,11 @@ namespace EventManagementSystem.API
     using EventManagementSystem.Utility;
     using FluentValidation;
     using MediatR;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.IdentityModel.Tokens;
     using Serilog;
 
     public class Program
@@ -25,9 +29,6 @@ namespace EventManagementSystem.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            // Logging
-            builder.Host.UseSerilog();
 
             builder.Services.AddCors(options =>
             {
@@ -39,6 +40,56 @@ namespace EventManagementSystem.API
                         .AllowAnyMethod();
                 });
             });
+
+            // Logging
+            builder.Host.UseSerilog();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = builder.Configuration["Authentication:Authority"];
+                options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:RequireHttpsMetadata");
+                options.ClientId = builder.Configuration["Authentication:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
+                options.ResponseType = "code";
+
+                options.SaveTokens = true;
+
+                options.CallbackPath = "/signin-oidc";
+
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                    ValidAudiences = new[] { "event-system-backend", "account" },
+                };
+
+                options.GetClaimsFromUserInfoEndpoint = true;
+            });
+
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = builder.Configuration["Authentication:Authority"];
+                options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:RequireHttpsMetadata");
+                options.Audience = builder.Configuration["Authentication:ClientId"];
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                };
+            });
+            builder.Services.AddTransient<IClaimsTransformation, KeycloakRoleClaimsTransformation>();
 
             builder.Services.AddSwaggerGen();
 
@@ -54,22 +105,23 @@ namespace EventManagementSystem.API
 
             builder.Services.AddValidatorsFromAssemblyContaining<CreateEventCommandValidator>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IEventRegistrationRepository, EventRegistrationRepository>();
+            builder.Services.AddScoped<IEventsRepository, EventsRepository>();
             builder.Services.AddAutoMapper(typeof(EventMappingProfile).Assembly);
             builder.Services.AddScoped<EventEndpoints>();
             builder.Services.AddScoped<EventRegistrationEndpoints>();
+            builder.Services.AddScoped<DashboardEndpoints>();
             builder.Services.AddScoped<UserEndpoints>();
-            builder.Services.AddScoped<AuthEndpoints>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddSingleton<IAzureBlobStorage, AzureBlobStorage>();
 
-            builder.Services.AddDbContext<ApplicationDbContext>(options => options
-            .UseLazyLoadingProxies()
-            .UseSqlServer(
-                "Server=.\\SQLEXPRESS;Database=EventManagementDatabase;Trusted_Connection=True;TrustServerCertificate=True;",
-                sqlOptions => sqlOptions.MigrationsAssembly("EventManagementSystem.Persistance")));
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             SerilogConfiguration.ConfigureSerilog(builder.Host, builder.Configuration);
 
             // Add services to the container.
+            builder.Services.AddAuthentication();
             builder.Services.AddAuthorization();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -77,10 +129,8 @@ namespace EventManagementSystem.API
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
-            app.RegisterAllEndpointGroups();
+            app.UseCors();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -88,14 +138,17 @@ namespace EventManagementSystem.API
                 app.MapOpenApi();
             }
 
-            /*app.UseHttpsRedirection();*/
-
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            // Configure the HTTP request pipeline.
+            app.RegisterAllEndpointGroups();
 
             app.Run();
         }
