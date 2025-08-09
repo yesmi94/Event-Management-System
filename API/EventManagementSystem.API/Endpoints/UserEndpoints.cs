@@ -30,46 +30,6 @@ namespace EventManagementSystem.API.Endpoints
         {
             var group = app.MapGroup("api/user");
 
-/*            group.MapPost(
-                "/",
-                [Authorize(Roles = "Admin")]
-                async (IMediator mediator, [FromBody] CreateUserCommand command) =>
-            {
-                var result = await mediator.Send(command);
-
-                if (!result.IsSuccess)
-                {
-                    var response = Response<List<ValidationFailure>>.FailureResponse([result.Error!], "Couldn't create the new User");
-                    this.logger.LogWarning("Failed: Failed to create the new User. Error: {Error}", result.Error);
-                    return Results.BadRequest(response);
-                }
-
-                var successResponse = Response<GetUserDto>.SuccessResponse(result.Value!, $"New user - {result.Value!.Name}, {result.Value!.UserType} added successfully");
-                this.logger.LogInformation("Registration - {result.Value} with {Role} added successfully", result.Value.Name, result.Value.UserType);
-                return Results.Ok(successResponse);
-            });
-
-            group.MapGet(
-                "/",
-                [Authorize(Roles = "Admin")]
-                async (IMediator mediator) =>
-            {
-                var query = new GetUsersQuery();
-
-                var result = await mediator.Send(query);
-
-                if (!result.IsSuccess)
-                {
-                    var response = Response<List<GetUserDto>>.FailureResponse([result.Error!], "Couldn't get the uers list");
-                    this.logger.LogWarning("Failed: Couldn't get the users list. Error: {Error}", result.Error);
-                    return Results.BadRequest(response);
-                }
-
-                var successResponse = Response<List<GetUserDto>>.SuccessResponse(result.Value!, $"Users list retrieved successfully");
-                this.logger.LogInformation("Users list retrieved successfully");
-                return Results.Ok(successResponse);
-            });*/
-
             group.MapGet(
                 "/registrations",
                 [Authorize(Roles = "Public User")]

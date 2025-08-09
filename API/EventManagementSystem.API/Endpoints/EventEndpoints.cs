@@ -90,7 +90,7 @@ namespace EventManagementSystem.API.Endpoints
 
             group.MapGet(
                 "/searched",
-                //[Authorize(Roles = "Admin, Public User")]
+                [Authorize(Roles = "Admin, Public User")]
                 async (IMediator mediator, [FromQuery] int page, [FromQuery] int pageSize, [FromQuery] string searchTerm) =>
                 {
                     var query = new GetSearchedEventsQuery(page, pageSize, searchTerm);
@@ -110,7 +110,7 @@ namespace EventManagementSystem.API.Endpoints
 
             group.MapGet(
             "/filtered",
-            //[Authorize(Roles = "Admin, Public User")]
+            [Authorize(Roles = "Admin, Public User")]
             async (
                 [FromServices] IMediator mediator,
                 [FromQuery] string? search,

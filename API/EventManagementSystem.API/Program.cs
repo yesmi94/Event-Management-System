@@ -52,10 +52,10 @@ namespace EventManagementSystem.API
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
             {
-                options.Authority = "http://localhost:8080/realms/event-management-system";
-                options.RequireHttpsMetadata = false;
-                options.ClientId = "event-system-backend";
-                options.ClientSecret = "LujqvYYZ68deq7ftFqsRCdELC3cE7Iil";
+                options.Authority = builder.Configuration["Authentication:Authority"];
+                options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:RequireHttpsMetadata");
+                options.ClientId = builder.Configuration["Authentication:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
                 options.ResponseType = "code";
 
                 options.SaveTokens = true;
@@ -79,9 +79,9 @@ namespace EventManagementSystem.API
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.Authority = "http://localhost:8080/realms/event-management-system";
-                options.RequireHttpsMetadata = false;
-                options.Audience = "event-system-backend";
+                options.Authority = builder.Configuration["Authentication:Authority"];
+                options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:RequireHttpsMetadata");
+                options.Audience = builder.Configuration["Authentication:ClientId"];
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -116,8 +116,7 @@ namespace EventManagementSystem.API
             builder.Services.AddSingleton<IAzureBlobStorage, AzureBlobStorage>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             SerilogConfiguration.ConfigureSerilog(builder.Host, builder.Configuration);
 
@@ -127,10 +126,6 @@ namespace EventManagementSystem.API
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
-            builder.Services.AddAntiforgery(options =>
-            {
-                options.HeaderName = "X-XSRF-TOKEN";
-            });
 
             var app = builder.Build();
 
@@ -143,8 +138,6 @@ namespace EventManagementSystem.API
                 app.MapOpenApi();
             }
 
-            /*app.UseHttpsRedirection();*/
-
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
@@ -153,7 +146,6 @@ namespace EventManagementSystem.API
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseAntiforgery();
 
             // Configure the HTTP request pipeline.
             app.RegisterAllEndpointGroups();
