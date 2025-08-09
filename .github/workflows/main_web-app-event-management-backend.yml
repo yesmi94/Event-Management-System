@@ -24,7 +24,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ./EventManagementSystem/API/EventManagementSystem.API/EventManagementSystem.API.csproj -c Release -o ./publish
+        run: dotnet publish ./API/EventManagementSystem.API/EventManagementSystem.API.csproj -c Release -o ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -50,6 +50,7 @@ jobs:
           slot-name: 'Production'
           package: ./publish
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+
 
 
 
