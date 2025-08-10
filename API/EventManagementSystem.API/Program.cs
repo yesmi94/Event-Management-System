@@ -138,6 +138,23 @@ namespace EventManagementSystem.API
                 app.MapOpenApi();
             }
 
+            app.MapGet("/debug/headers", (HttpRequest request) =>
+            {
+                var headers = request.Headers
+                    .Select(h => $"{h.Key}: {h.Value}")
+                    .ToList();
+
+                Console.WriteLine("==== Incoming Request Headers ====");
+                foreach (var header in headers)
+                {
+                    Console.WriteLine(header);
+                }
+
+                Console.WriteLine("================================");
+
+                return Results.Json(headers);
+            });
+
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
