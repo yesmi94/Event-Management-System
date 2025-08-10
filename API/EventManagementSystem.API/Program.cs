@@ -41,7 +41,40 @@ namespace EventManagementSystem.API
                 });
             });
 
+            // Logging
             builder.Host.UseSerilog();
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = "Cookies";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddCookie("Cookies")
+            .AddOpenIdConnect("oidc", options =>
+            {
+                options.Authority = builder.Configuration["Authentication:Authority"];
+                options.RequireHttpsMetadata = builder.Configuration.GetValue<bool>("Authentication:RequireHttpsMetadata");
+                options.ClientId = builder.Configuration["Authentication:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:ClientSecret"];
+                options.ResponseType = "code";
+
+                options.SaveTokens = true;
+
+                options.CallbackPath = "/signin-oidc";
+
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("email");
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                    ValidAudiences = new[] { "event-system-backend", "account" },
+                };
+
+                options.GetClaimsFromUserInfoEndpoint = true;
+            });
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
@@ -55,19 +88,7 @@ namespace EventManagementSystem.API
                     NameClaimType = "preferred_username",
                     RoleClaimType = ClaimTypes.Role,
                 };
-
-                options.Events = new JwtBearerEvents
-                {
-                    OnChallenge = context =>
-                    {
-                        context.HandleResponse();
-                        context.Response.StatusCode = 401;
-                        context.Response.ContentType = "application/json";
-                        return context.Response.WriteAsync("{\"error\":\"Unauthorized\"}");
-                    },
-                };
             });
-
             builder.Services.AddTransient<IClaimsTransformation, KeycloakRoleClaimsTransformation>();
 
             builder.Services.AddSwaggerGen();
@@ -122,9 +143,9 @@ namespace EventManagementSystem.API
 
             app.UseHttpsRedirection();
 
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
+            app.UseRouting();
 
             // Configure the HTTP request pipeline.
             app.RegisterAllEndpointGroups();
