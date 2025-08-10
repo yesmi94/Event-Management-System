@@ -4,7 +4,6 @@
 
 namespace EventManagementSystem.API
 {
-    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -18,11 +17,14 @@ namespace EventManagementSystem.API
     using FluentValidation;
     using MediatR;
     using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
+    using Microsoft.AspNetCore.Authentication.OpenIdConnect;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
     using Serilog;
+    using System.Security.Claims;
 
     public class Program
     {
@@ -46,8 +48,8 @@ namespace EventManagementSystem.API
 
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultScheme = "Cookies";
-                options.DefaultChallengeScheme = "oidc";
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
@@ -137,23 +139,6 @@ namespace EventManagementSystem.API
                 app.UseSwaggerUI();
                 app.MapOpenApi();
             }
-
-            app.MapGet("/debug/headers", (HttpRequest request) =>
-            {
-                var headers = request.Headers
-                    .Select(h => $"{h.Key}: {h.Value}")
-                    .ToList();
-
-                Console.WriteLine("==== Incoming Request Headers ====");
-                foreach (var header in headers)
-                {
-                    Console.WriteLine(header);
-                }
-
-                Console.WriteLine("================================");
-
-                return Results.Json(headers);
-            });
 
             /*Global Exception Handler*/
             app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
