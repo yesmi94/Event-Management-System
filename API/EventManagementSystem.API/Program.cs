@@ -35,7 +35,7 @@ namespace EventManagementSystem.API
                 options.AddDefaultPolicy(policy =>
                 {
                     policy
-                        .WithOrigins("http://localhost:5173")
+                        .WithOrigins("https://yellow-water-0d8625800.1.azurestaticapps.net")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
