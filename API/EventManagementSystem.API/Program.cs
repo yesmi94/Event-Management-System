@@ -160,9 +160,9 @@ namespace EventManagementSystem.API
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseRouting();
 
             // Configure the HTTP request pipeline.
             app.RegisterAllEndpointGroups();
