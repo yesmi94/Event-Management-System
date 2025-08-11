@@ -4,6 +4,7 @@
 
 namespace EventManagementSystem.API
 {
+    using System.Security.Claims;
     using EventManagementSystem.API.Endpoints;
     using EventManagementSystem.API.Extensions;
     using EventManagementSystem.API.Middlewares;
@@ -24,7 +25,6 @@ namespace EventManagementSystem.API
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
     using Serilog;
-    using System.Security.Claims;
 
     public class Program
     {

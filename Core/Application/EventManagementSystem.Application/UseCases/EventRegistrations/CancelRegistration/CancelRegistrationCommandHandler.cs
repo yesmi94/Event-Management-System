@@ -4,6 +4,7 @@
 
 namespace EventManagementSystem.Application.UseCases.EventRegistrations.CancelRegistration
 {
+    using Azure.Core;
     using EventManagementSystem.Application.Interfaces;
     using EventManagementSystem.Application.Patterns;
     using EventManagementSystem.Domain.Entities;
@@ -12,12 +13,14 @@ namespace EventManagementSystem.Application.UseCases.EventRegistrations.CancelRe
     public class CancelRegistrationCommandHandler : IRequestHandler<CancelRegistrationCommand, Result<string>>
     {
         private readonly IRepository<EventRegistration> registrationRepository;
+        private readonly IRepository<Event> eventsRepository;
         private readonly IUnitOfWork unitOfWork;
 
-        public CancelRegistrationCommandHandler(IRepository<EventRegistration> registrationRepository, IUnitOfWork unitOfWork)
+        public CancelRegistrationCommandHandler(IRepository<EventRegistration> registrationRepository, IUnitOfWork unitOfWork, IRepository<Event> eventsRepository)
         {
             this.registrationRepository = registrationRepository;
             this.unitOfWork = unitOfWork;
+            this.eventsRepository = eventsRepository;
         }
 
         public async Task<Result<string>> Handle(CancelRegistrationCommand request, CancellationToken cancellationToken)
@@ -28,6 +31,9 @@ namespace EventManagementSystem.Application.UseCases.EventRegistrations.CancelRe
             {
                 return Result<string>.Failure("Failed: Trying to cancel an invalid registration");
             }
+
+            var registeredEvent = await this.eventsRepository.GetByIdAsync(eventRegistration.EventId!);
+            registeredEvent!.RemainingSpots += 1;
 
             await this.registrationRepository.DeleteAsync(eventRegistration);
             await this.unitOfWork.CompleteAsync();
