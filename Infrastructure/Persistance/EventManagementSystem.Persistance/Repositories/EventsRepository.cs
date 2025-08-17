@@ -86,6 +86,7 @@ namespace EventManagementSystem.Persistance.Repositories
                     Location = e.Location,
                     EventImageUrl = e.EventImageUrl,
                     RemainingSpots = e.RemainingSpots,
+                    Capacity = e.Capacity,
                 })
                 .ToListAsync();
 

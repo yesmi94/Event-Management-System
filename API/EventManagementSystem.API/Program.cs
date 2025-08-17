@@ -34,14 +34,13 @@ namespace EventManagementSystem.API
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowFrontend",
-                    policy =>
-                    {
-                        policy.WithOrigins("http://localhost:5173") // your React dev server
-                              .AllowAnyHeader()
-                              .AllowAnyMethod()
-                              .AllowCredentials(); // optional if using cookies/auth
-                    });
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy
+                        .WithOrigins("https://eventora-frontend-iwdo.vercel.app/")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
             });
 
             // Logging
@@ -49,10 +48,8 @@ namespace EventManagementSystem.API
 
             builder.Services.AddAuthentication(options =>
             {
-                /*options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;*/
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
             })
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
@@ -134,7 +131,7 @@ namespace EventManagementSystem.API
 
             var app = builder.Build();
 
-            app.UseCors("AllowFrontend");
+            app.UseCors();
 
             if (app.Environment.IsDevelopment())
             {
