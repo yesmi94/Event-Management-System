@@ -37,7 +37,7 @@ namespace EventManagementSystem.API
                 options.AddDefaultPolicy(policy =>
                 {
                     policy
-                        .WithOrigins("https://eventora-frontend-iwdo.vercel.app/")
+                        .WithOrigins("https://eventora-frontend-jade.vercel.app")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
