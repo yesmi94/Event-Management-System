@@ -34,13 +34,14 @@ namespace EventManagementSystem.API
 
             builder.Services.AddCors(options =>
             {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy
-                        .WithOrigins("https://yellow-water-0d8625800.1.azurestaticapps.net")
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                });
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173") // your React dev server
+                              .AllowAnyHeader()
+                              .AllowAnyMethod()
+                              .AllowCredentials(); // optional if using cookies/auth
+                    });
             });
 
             // Logging
@@ -48,8 +49,10 @@ namespace EventManagementSystem.API
 
             builder.Services.AddAuthentication(options =>
             {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                /*options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;*/
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
             .AddCookie("Cookies")
             .AddOpenIdConnect("oidc", options =>
@@ -131,7 +134,7 @@ namespace EventManagementSystem.API
 
             var app = builder.Build();
 
-            app.UseCors();
+            app.UseCors("AllowFrontend");
 
             if (app.Environment.IsDevelopment())
             {

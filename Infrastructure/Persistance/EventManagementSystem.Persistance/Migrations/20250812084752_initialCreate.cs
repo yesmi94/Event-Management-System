@@ -1,4 +1,4 @@
-﻿// <copyright file="20250728061512_InitialCreate.cs" company="Ascentic">
+﻿// <copyright file="20250812084752_initialCreate.cs" company="Ascentic">
 // Copyright (c) Ascentic. All rights reserved.
 // </copyright>
 
@@ -8,7 +8,7 @@ namespace EventManagementSystem.Persistance.Migrations
     using Microsoft.EntityFrameworkCore.Migrations;
 
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,7 @@ namespace EventManagementSystem.Persistance.Migrations
                     Organization = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Capacity = table.Column<int>(type: "int", nullable: false),
                     CutoffDate = table.Column<DateTime>(type: "date", nullable: false),
+                    RemainingSpots = table.Column<int>(type: "int", nullable: false),
                 },
                 constraints: table =>
                 {
@@ -80,6 +81,7 @@ namespace EventManagementSystem.Persistance.Migrations
                     PublicUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     RegisteredUserName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RegisteredAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                 },
                 constraints: table =>
@@ -89,12 +91,6 @@ namespace EventManagementSystem.Persistance.Migrations
                         name: "FK_EventRegistrations_Events_EventId",
                         column: x => x.EventId,
                         principalTable: "Events",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_EventRegistrations_Users_PublicUserId",
-                        column: x => x.PublicUserId,
-                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -110,9 +106,11 @@ namespace EventManagementSystem.Persistance.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EventRegistrations_PublicUserId",
+                name: "IX_EventRegistrations_PublicUserId_EventId",
                 table: "EventRegistrations",
-                column: "PublicUserId");
+                columns: new[] { "PublicUserId", "EventId" },
+                unique: true,
+                filter: "[EventId] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -125,10 +123,10 @@ namespace EventManagementSystem.Persistance.Migrations
                 name: "EventRegistrations");
 
             migrationBuilder.DropTable(
-                name: "Events");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Events");
         }
     }
 }

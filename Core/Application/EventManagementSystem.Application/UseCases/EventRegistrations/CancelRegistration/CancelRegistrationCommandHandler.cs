@@ -4,7 +4,6 @@
 
 namespace EventManagementSystem.Application.UseCases.EventRegistrations.CancelRegistration
 {
-    using Azure.Core;
     using EventManagementSystem.Application.Interfaces;
     using EventManagementSystem.Application.Patterns;
     using EventManagementSystem.Domain.Entities;
@@ -33,9 +32,9 @@ namespace EventManagementSystem.Application.UseCases.EventRegistrations.CancelRe
             }
 
             var registeredEvent = await this.eventsRepository.GetByIdAsync(eventRegistration.EventId!);
-            registeredEvent!.RemainingSpots += 1;
 
             await this.registrationRepository.DeleteAsync(eventRegistration);
+            registeredEvent!.RemainingSpots += 1;
             await this.unitOfWork.CompleteAsync();
             return Result<string>.Success($"Successfully Cancelled Registration for Event: {eventRegistration.RegisteredUserName!}");
         }
